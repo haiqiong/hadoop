@@ -1,0 +1,23 @@
+1. get the max of the 9th column - claim col
+$ $HDOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-1.0.3.jar -input input/patent_sample.txt -output output/claim -mapper 'FeatureMax.py 8' -reducer 'FeatureMax.py 0' -file $DOC_HOME/program/hadoop/src/FeatureMax.py
+
+The output of mapper is the max of each split.
+The output of reducer is the max of the output of mapper.
+
+2. get the 9th column.
+$ $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-1.0.3.jar -input input/patent_sample.txt -output output/claims1.txt -mapper 'cut -f 9 -d ,' -reducer 'uniq'
+
+3. get the <country, claim> with the mapper and identyReducer(straight reducer)
+$ $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-1.0.3.jar -input input/patent_sample.txt -output output/country_claim -mapper 'CountryClaim.py' -file $DOC_HOME/program/hadoop/src/CountryClaim.py
+
+4. get the ave claim for each country.
+$ $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-1.0.3.jar -input input/patent_sample.txt -output output/country_avg_claim -mapper 'CountryClaim.py' -file $DOC_HOME/program/hadoop/src/CountryClaim.py -reducer 'CountryAvgClaim.py' -file $DOC_HOME/program/hadoop/src/CountryAvgClaim.py
+
+5. get the number of patents granted each year
+$ $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-1.0.3.jar -input input/patent_sample.txt -output output/grant_per_year -mapper 'GrantNumMapper.py 1' -file $DOC_HOME/program/hadoop/src/GrantNumMapper.py -reducer aggregate
+
+6. The number of unique country per year
+ $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-1.0.3.jar -input input/patent_sample.txt -output output/country_per_year -mapper 'CountryPerYearMapper.py 1 4' -file $DOC_HOME/program/hadoop/src/CountryPerYearMapper.py -reducer aggregate
+
+7. histogram of patented granted for each year
+$ streaming -input input/patent_sample.txt -output output/year_histogram -mapper 'HistogramMapper.py 1 4' -file $DOC_HOME/program/hadoop/src/HistogramMapper.py -reducer aggregate
